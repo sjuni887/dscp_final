@@ -1,6 +1,0 @@
-streamlit
-replicate
-pandas
-numpy
-scikit-learn
-flask
