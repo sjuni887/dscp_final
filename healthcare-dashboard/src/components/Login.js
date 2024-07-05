@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
-function Login() {
+function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ function Login() {
     const data = await response.json();
     if (response.status === 200) {
       localStorage.setItem('auth', 'true');
+      onLogin(); // Call onLogin prop to update the auth state
       navigate('/');
     } else {
       alert(data.message);
