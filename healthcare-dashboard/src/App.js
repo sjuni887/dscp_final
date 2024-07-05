@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Register from './components/Register';
 import Home from './components/Home';
+import Chat from './components/Chat';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -12,7 +13,6 @@ const PrivateRoute = ({ children }) => {
 };
 
 // Placeholder components for the new sections
-const Chat = () => <div><h2>Generative AI Chat</h2></div>;
 const EnterPatientData = () => <div><h2>Enter Patient Data</h2></div>;
 const PredictOutcomes = () => <div><h2>Predict ICU and Death</h2></div>;
 const AccessPatientData = () => <div><h2>Access Patient Data</h2></div>;
@@ -52,10 +52,10 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
           <Route path="/enter-patient-data" element={<PrivateRoute><EnterPatientData /></PrivateRoute>} />
           <Route path="/predict-outcomes" element={<PrivateRoute><PredictOutcomes /></PrivateRoute>} />
           <Route path="/access-patient-data" element={<PrivateRoute><AccessPatientData /></PrivateRoute>} />
-          <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
           <Route path="/dashboards" element={<PrivateRoute><Dashboards /></PrivateRoute>} />
         </Routes>
       </div>

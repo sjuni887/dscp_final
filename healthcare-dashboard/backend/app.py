@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+import os
+import requests
+import time
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -39,6 +42,46 @@ def login():
     if user and bcrypt.check_password_hash(user.password, data['password']):
         return jsonify(message="Login successful"), 200
     return jsonify(message="Invalid credentials"), 401
+
+# LLM Response endpoint
+@app.route('/llm_response', methods=['POST'])
+def llm_response():
+    data = request.json
+    prompt = data['prompt']
+    replicate_api_token = data.get('replicate_api_token')
+
+    headers = {
+        'Authorization': f'Token {replicate_api_token}',
+        'Content-Type': 'application/json'
+    }
+
+    payload = {
+        'version': 'df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5',
+        'input': {
+            'prompt': prompt,
+            'temperature': data.get('temperature', 0.1),
+            'top_p': data.get('top_p', 0.9),
+            'max_length': data.get('max_length', 512),
+            'repetition_penalty': 1,
+        }
+    }
+
+    response = requests.post('https://api.replicate.com/v1/predictions', json=payload, headers=headers)
+    prediction = response.json()
+
+    if 'urls' in prediction:
+        get_url = prediction['urls']['get']
+        while True:
+            result = requests.get(get_url, headers=headers).json()
+            if result['status'] in ['succeeded', 'failed']:
+                break
+            time.sleep(1)
+        if result['status'] == 'succeeded' and 'output' in result:
+            return jsonify(output=result['output']), 200
+        else:
+            return jsonify(error="Failed to generate response"), 500
+    else:
+        return jsonify(error="Failed to generate response"), 500
 
 if __name__ == '__main__':
     app = create_app()
