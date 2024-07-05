@@ -1,0 +1,47 @@
+/* Ensure the form and its elements use the Manrope font and have some basic styling */
+form {
+    font-family: 'Manrope', sans-serif;
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  form div {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  input, select {
+    font-family: 'Manrope', sans-serif;
+    width: 100%;
+    padding: 10px; /* Ensure consistent padding */
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+  }
+  
+  button {
+    font-family: 'Manrope', sans-serif;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  

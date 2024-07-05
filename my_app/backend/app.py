@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 import pickle
 import numpy as np
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Load models
 with open('models/rf_model_death.pkl', 'rb') as file:
@@ -14,6 +16,8 @@ with open('models/rf_model_icu.pkl', 'rb') as file:
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
+    app.logger.debug(f'Received data: {data}')
+    
     input_data = np.array([[
         data['age'], data['rcri_score'], data['anemia_category_mapped'], data['preop_egfr'],
         data['grade_kidney_disease_mapped'], data['preop_transfusion'], data['intraop'], data['postop_within_30days'],
@@ -31,12 +35,15 @@ def predict():
     icu_prediction = icu_model.predict(input_data)[0]
     icu_probability = icu_model.predict_proba(input_data)[0][1]
 
-    return jsonify({
+    response = {
         'death_prediction': int(death_prediction),
         'death_probability': float(death_probability),
         'icu_prediction': int(icu_prediction),
         'icu_probability': float(icu_probability)
-    })
+    }
+
+    app.logger.debug(f'Sending response: {response}')
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True)
