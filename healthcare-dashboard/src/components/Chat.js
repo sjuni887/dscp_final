@@ -83,18 +83,19 @@ const Chat = () => {
       <div className="chat-sidebar">
         <h2>Configurations</h2>
         <div>
-          <label>Temperature</label>
-          <input type="number" value={temperature} onChange={(e) => setTemperature(parseFloat(e.target.value))} step="0.01" min="0" max="1" />
+          <label>Temperature: {temperature}</label>
+          <input type="range" value={temperature} onChange={(e) => setTemperature(parseFloat(e.target.value))} step="0.01" min="0" max="1" />
         </div>
         <div>
-          <label>Top P</label>
-          <input type="number" value={topP} onChange={(e) => setTopP(parseFloat(e.target.value))} step="0.01" min="0" max="1" />
+          <label>Top P: {topP}</label>
+          <input type="range" value={topP} onChange={(e) => setTopP(parseFloat(e.target.value))} step="0.01" min="0" max="1" />
         </div>
         <div>
-          <label>Max Length</label>
-          <input type="number" value={maxLength} onChange={(e) => setMaxLength(parseInt(e.target.value))} step="1" min="1" max="512" />
+          <label>Max Length: {maxLength}</label>
+          <input type="range" value={maxLength} onChange={(e) => setMaxLength(parseInt(e.target.value))} step="1" min="1" max="512" />
         </div>
-        <div>
+        <button onClick={clearChatHistory}>Clear Chat History</button>
+        <div className="api-token-section">
           <label>Replicate API Token</label>
           <input
             type="password"
@@ -104,7 +105,6 @@ const Chat = () => {
           />
           <button onClick={handleSaveToken}>Save Token</button>
         </div>
-        <button onClick={clearChatHistory}>Clear Chat History</button>
       </div>
       <div className="chat-main">
         <div className="chat-messages">
