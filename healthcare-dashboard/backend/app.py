@@ -3,8 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 import os
-import requests
-import time
+import pandas as pd
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -43,45 +42,50 @@ def login():
         return jsonify(message="Login successful"), 200
     return jsonify(message="Invalid credentials"), 401
 
-# LLM Response endpoint
-@app.route('/llm_response', methods=['POST'])
-def llm_response():
-    data = request.json
-    prompt = data['prompt']
-    replicate_api_token = data.get('replicate_api_token')
-
-    headers = {
-        'Authorization': f'Token {replicate_api_token}',
-        'Content-Type': 'application/json'
-    }
-
-    payload = {
-        'version': 'df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5',
-        'input': {
-            'prompt': prompt,
-            'temperature': data.get('temperature', 0.1),
-            'top_p': data.get('top_p', 0.9),
-            'max_length': data.get('max_length', 512),
-            'repetition_penalty': 1,
-        }
-    }
-
-    response = requests.post('https://api.replicate.com/v1/predictions', json=payload, headers=headers)
-    prediction = response.json()
-
-    if 'urls' in prediction:
-        get_url = prediction['urls']['get']
-        while True:
-            result = requests.get(get_url, headers=headers).json()
-            if result['status'] in ['succeeded', 'failed']:
-                break
-            time.sleep(1)
-        if result['status'] == 'succeeded' and 'output' in result:
-            return jsonify(output=result['output']), 200
-        else:
-            return jsonify(error="Failed to generate response"), 500
+# Load patient data from CSV
+def load_patient_data():
+    if os.path.exists('patient_data.csv'):
+        return pd.read_csv('patient_data.csv')
     else:
-        return jsonify(error="Failed to generate response"), 500
+        return pd.DataFrame(columns=['IndexNo', 'Age', 'RCRI score', 'Anemia category', 'PreopEGFRMDRD', 
+                                     'Grade of Kidney Disease', 'Preoptransfusion within 30 days', 'Intraop', 
+                                     'Postop within 30 days', 'Transfusion intra and postop', 
+                                     'Transfusion Intra and Postop Category', 'Surgical Risk Category', 
+                                     'Grade of Kidney Category', 'Anemia Category Binned', 'RDW15.7', 
+                                     'ASA Category Binned', 'Gender', 'Anaesthesia Type', 'Surgery Priority', 
+                                     'Race', 'Creatine RCRI Category', 'DM Insulin Category', 'CHF RCRI Category', 
+                                     'IHD RCRI Category', 'CVA RCRI Category'])
+
+# Save patient data to CSV
+def save_patient_data(df):
+    df.to_csv('patient_data.csv', index=False)
+
+# Fetch all patient data
+@app.route('/patients', methods=['GET'])
+def get_patients():
+    df = load_patient_data()
+    return df.to_json(orient='records'), 200
+
+# Add new patient data
+@app.route('/patients', methods=['POST'])
+def add_patient():
+    data = request.json
+    df = load_patient_data()
+    df = df.append(data, ignore_index=True)
+    save_patient_data(df)
+    return jsonify(message="Patient data added successfully"), 201
+
+# Edit existing patient data
+@app.route('/patients/<int:index>', methods=['PUT'])
+def edit_patient(index):
+    data = request.json
+    df = load_patient_data()
+    if 0 <= index < len(df):
+        df.loc[index] = data
+        save_patient_data(df)
+        return jsonify(message="Patient data updated successfully"), 200
+    else:
+        return jsonify(message="Invalid index"), 404
 
 if __name__ == '__main__':
     app = create_app()

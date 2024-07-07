@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Home from './components/Home';
 import Chat from './components/Chat';
+import EnterPatientData from './components/EnterPatientData'; // Ensure this import
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -12,8 +13,6 @@ const PrivateRoute = ({ children }) => {
   return auth ? children : <Navigate to="/login" />;
 };
 
-// Placeholder components for the new sections
-const EnterPatientData = () => <div><h2>Enter Patient Data</h2></div>;
 const PredictOutcomes = () => <div><h2>Predict ICU and Death</h2></div>;
 const AccessPatientData = () => <div><h2>Access Patient Data</h2></div>;
 const Dashboards = () => <div><h2>Dashboards</h2></div>;
