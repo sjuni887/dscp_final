@@ -2,6 +2,21 @@
     padding: 20px;
   }
   
+  .patient-form fieldset {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .patient-form legend {
+    font-weight: bold;
+  }
+  
+  .patient-form label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+  
   .patient-form input,
   .patient-form select,
   .patient-form button {

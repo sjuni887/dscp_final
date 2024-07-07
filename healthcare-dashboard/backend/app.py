@@ -71,21 +71,21 @@ def get_patients():
 def add_patient():
     data = request.json
     df = load_patient_data()
-    df = df.append(data, ignore_index=True)
+    new_row = pd.DataFrame([data])
+    df = pd.concat([df, new_row], ignore_index=True)
     save_patient_data(df)
     return jsonify(message="Patient data added successfully"), 201
 
-# Edit existing patient data
-@app.route('/patients/<int:index>', methods=['PUT'])
-def edit_patient(index):
+# Update patient data
+@app.route('/patients/<indexno>', methods=['PUT'])
+def update_patient(indexno):
     data = request.json
     df = load_patient_data()
-    if 0 <= index < len(df):
-        df.loc[index] = data
-        save_patient_data(df)
-        return jsonify(message="Patient data updated successfully"), 200
-    else:
-        return jsonify(message="Invalid index"), 404
+    df = df[df['IndexNo'] != indexno]
+    updated_row = pd.DataFrame([data])
+    df = pd.concat([df, updated_row], ignore_index=True)
+    save_patient_data(df)
+    return jsonify(message="Patient data updated successfully"), 200
 
 if __name__ == '__main__':
     app = create_app()
